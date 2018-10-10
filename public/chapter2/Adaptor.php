@@ -119,4 +119,5 @@ $stmt->execute($name);
 
 $arr = $stmt->fetchall_assoc();
 var_dump($arr);
+echo($name);
 //comment
