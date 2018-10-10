@@ -1,9 +1,11 @@
 по книге "Профессиональное программирование на PHP"
 **Джордж Шлосснейгл**
-
-
-http://localhost:9191/chapter2/Adaptor.php
-
+---
+**run docker:**
+`$ docker-compose up`
+---
+http://localhost:9191/
+---
 **phpMyAdmin:**
 http://localhost:8181/
 root
