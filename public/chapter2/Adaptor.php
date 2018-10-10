@@ -118,4 +118,5 @@ $stmt = $dbh->prepare("SELECT * FROM users WHERE name = :1 ");
 $stmt->execute($name);
 
 $arr = $stmt->fetchall_assoc();
-print_r($arr);
+var_dump($arr);
+//comment
