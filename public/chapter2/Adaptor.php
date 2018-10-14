@@ -1,5 +1,4 @@
 <?php
-ini_set("display_errors", 1);
 
 class DB_Mysql {
   protected $user;
@@ -17,12 +16,9 @@ class DB_Mysql {
 
   protected function connect()
   {
-    $this->dbh = mysql_connect($this->dbhost, $this->user, $this->pass);
-    if(!is_resource($this->dbh)) {
-      throw new Exception("Error Processing Request #21", 1);
-    }
-    if(!mysql_select_db($this->dbname, $this->dbh)) {
-      throw new \Exception("Error Processing Request #24", 1);
+    $this->dbh = mysqli_connect($this->dbhost, $this->user, $this->pass, $this->dbname);
+    if(!$this->dbh) {
+      throw new Exception("There is issue with server connect: " . $this->dbhost, 1);
     }
   }
 
@@ -31,11 +27,11 @@ class DB_Mysql {
     if(!$this->dbh) {
       $this->connect();
     }
-    $ret = mysql_query($query, $this->dbh);
+    $ret = mysqli_query($this->dbh, $query);
     if(!$ret) {
       throw new \Exception("Error Processing Request", 1);
     }
-    else if(!is_resource($ret)) {
+    else if(!$ret) {
       return true;
     } else {
       $stmt = new DB_MysqlStatement($this->dbh, $query);
@@ -65,7 +61,7 @@ class DB_MysqlStatement
   {
     $this->query = $query;
     $this->dbh = $dbh;
-    if(!is_resource($dbh)) {
+    if(!$dbh) {
       throw new \Exception("Error Processing Request #71", 1);
     }
   }
@@ -75,12 +71,12 @@ class DB_MysqlStatement
     if(!$this->result) {
       throw new \Exception("Error Processing Request", 1);
     }
-    return mysql_fetch_row($this->result);
+    return mysqli_fetch_row($this->result);
   }
 
   public function fetch_assoc()
   {
-    return mysql_fetch_assoc($this->result);
+    return mysqli_fetch_assoc($this->result);
   }
 
   public function fetchall_assoc()
@@ -101,9 +97,9 @@ class DB_MysqlStatement
     $cnt = count($binds);
     $query = $this->query;
     foreach ($this->binds as $ph => $pv) {
-      $query = str_replace(":$ph", "'".mysql_escape_string($pv)."'", $query);
+      $query = str_replace(":$ph", "'".mysqli_real_escape_string($this->dbh, $pv)."'", $query);
     }
-    $this->result = mysql_query($query, $this->dbh);
+    $this->result = mysqli_query($this->dbh, $query);
     if(!$this->result) {
       throw new \Exception("Error Processing Request with query: " . $query, 1);
 
@@ -111,12 +107,3 @@ class DB_MysqlStatement
     return $this;
   }
 }
-
-$name = "vasya";
-$dbh = new DB_Mysql("testuser", "testpass", "db", "testdb");
-$stmt = $dbh->prepare("SELECT * FROM users WHERE name = :1 ");
-$stmt->execute($name);
-
-$arr = $stmt->fetchall_assoc();
-// var_dump($arr);
-print_r($arr);
